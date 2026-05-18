@@ -53,6 +53,7 @@ class StockTickerService : Service() {
                 stopSelf()
                 return START_NOT_STICKY
             }
+
             ACTION_RELOAD -> {
                 scope.coroutineContext[Job]?.cancelChildren()
                 currentPrices = null
@@ -62,6 +63,7 @@ class StockTickerService : Service() {
                 updateNotification(buildNotification(lastPriceText))
                 startPolling()
             }
+
             else -> {
                 showOverlay()
                 startForeground(NOTIFICATION_ID, buildNotification("0.00"))
@@ -92,8 +94,7 @@ class StockTickerService : Service() {
                     val prices = fetchPrices()
                     if (prices.isNotEmpty()) {
                         currentPrices = prices
-                        val p = prices.first()
-                        lastPriceText = "%.2f".format(p.price)
+                        lastPriceText = "%.2f".format(prices.first().price)
                         fetchErrorCount = 0
                     } else {
                         fetchErrorCount++
@@ -109,8 +110,6 @@ class StockTickerService : Service() {
             }
         }
     }
-
-    // ─── 悬浮窗 ──────────────────────────────────────────
 
     private fun showOverlay() {
         if (overlayView != null) return
@@ -130,7 +129,9 @@ class StockTickerService : Service() {
         }
 
         val statusBarHeight = resources.getIdentifier("status_bar_height", "dimen", "android")
-            .takeIf { it > 0 }?.let { resources.getDimensionPixelSize(it) } ?: 72
+            .takeIf { it > 0 }
+            ?.let { resources.getDimensionPixelSize(it) }
+            ?: 72
         val screenWidth = resources.displayMetrics.widthPixels
         val offsetX = (screenWidth * offsetPercent / 100.0).toInt()
 
@@ -142,9 +143,9 @@ class StockTickerService : Service() {
                 WindowManager.LayoutParams.TYPE_PHONE
             }
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
             format = PixelFormat.TRANSLUCENT
             width = WindowManager.LayoutParams.WRAP_CONTENT
             height = statusBarHeight
@@ -166,16 +167,18 @@ class StockTickerService : Service() {
     private fun removeOverlay() {
         val wm = windowManager ?: return
         overlayView?.let {
-            try { wm.removeView(it) } catch (_: Exception) {}
+            try {
+                wm.removeView(it)
+            } catch (_: Exception) {
+            }
         }
         overlayView = null
     }
 
-    // ─── 行情获取 ────────────────────────────────────────
-
     private fun fetchPrices(): List<StockPrice> {
         val codes = stockCodes
         if (codes.isEmpty()) return emptyList()
+
         val query = codes.joinToString(",")
         val url = URL("http://hq.sinajs.cn/list=$query")
         val conn = url.openConnection() as HttpURLConnection
@@ -185,9 +188,8 @@ class StockTickerService : Service() {
             conn.readTimeout = 5000
             conn.connect()
             if (conn.responseCode != HttpURLConnection.HTTP_OK) return emptyList()
-            val text = BufferedReader(
-                InputStreamReader(conn.inputStream, "GBK")
-            ).use { it.readText() }
+
+            val text = BufferedReader(InputStreamReader(conn.inputStream, "GBK")).use { it.readText() }
             parseSinaResponse(text)
         } finally {
             conn.disconnect()
@@ -195,15 +197,16 @@ class StockTickerService : Service() {
     }
 
     private fun parseSinaResponse(text: String): List<StockPrice> {
-        val codes = stockCodes
         val prices = mutableListOf<StockPrice>()
         for (line in text.lines()) {
-            for (code in codes) {
+            for (code in stockCodes) {
                 val prefix = "var hq_str_$code=\""
                 if (!line.startsWith(prefix)) continue
+
                 val data = line.removePrefix(prefix).trimEnd('"', ';', '\n', '\r')
                 val fields = data.split(",")
                 if (fields.size < 32) continue
+
                 val name = fields[0]
                 val current = fields[3].toDoubleOrNull() ?: 0.0
                 val yesterdayClose = fields[2].toDoubleOrNull() ?: 0.0
@@ -215,16 +218,16 @@ class StockTickerService : Service() {
         return prices
     }
 
-    // ─── 通知 ────────────────────────────────────────────
-
-    private fun buildNotification(ticker: String): Notification {
-        val prices = currentPrices ?: emptyList()
-        val p = prices.firstOrNull()
-        val name = p?.name ?: ""
-        val priceText = if (p != null) "${"%.2f".format(p.price)}" else ticker
+    private fun buildNotification(fallbackPrice: String): Notification {
+        val price = currentPrices?.firstOrNull()
+        val title = if (price != null) {
+            "${price.name} ${"%.2f".format(price.price)}"
+        } else {
+            fallbackPrice
+        }
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("$name $priceText")
-            .setContentText("实时行情监控中")
+            .setContentTitle(title)
+            .setContentText(getString(R.string.notification_content))
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -233,21 +236,22 @@ class StockTickerService : Service() {
             .build()
     }
 
-    private fun updateNotification(n: Notification) {
+    private fun updateNotification(notification: Notification) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIFICATION_ID, n)
+        nm.notify(NOTIFICATION_ID, notification)
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, "股票行情",
+                CHANNEL_ID,
+                getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 setShowBadge(false)
                 setSound(null, null)
                 enableVibration(false)
-                description = "实时股票行情数据"
+                description = getString(R.string.notification_channel_description)
             }
             (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
                 .createNotificationChannel(channel)

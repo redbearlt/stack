@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">大红袍</string>
+    <string name="app_name">股票盯盘</string>
+    <string name="home_title">股票盯盘</string>
+    <string name="action_settings">设置</string>
+    <string name="action_manage">管理</string>
+    <string name="action_start">启动</string>
+    <string name="action_stop">停止</string>
+    <string name="status_tap_to_start">点击启动开始监控</string>
     <string name="running_status">监控运行中</string>
     <string name="stopped_status">已停止</string>
+
+    <string name="overlay_permission_message">请开启悬浮窗权限，以便在顶部状态区域显示价格。</string>
+    <string name="notification_channel_name">股票行情</string>
+    <string name="notification_channel_description">实时股票行情数据</string>
+    <string name="notification_content">实时行情监控中</string>
+
+    <string name="manage_dialog_title">管理股票</string>
+    <string name="manage_current_list">当前监控的股票（%1$d 只）</string>
+    <string name="manage_empty">暂无股票，请在下方添加。</string>
+    <string name="manage_add_stock">添加股票</string>
+    <string name="manage_input_hint">输入 6 位代码，例如 600519</string>
+    <string name="manage_add">添加</string>
+    <string name="manage_row_format">%1$s（%2$s）</string>
+    <string name="invalid_stock_code">无效代码，请输入 6 位数字。</string>
+    <string name="duplicate_stock_code">该股票已在列表中。</string>
+    <string name="stock_list_updated">股票列表已更新。</string>
+    <string name="stock_list_reset">已恢复默认股票列表。</string>
+    <string name="action_save_apply">保存并应用</string>
+    <string name="action_reset_default">恢复默认</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_delete">删除</string>
+
+    <string name="settings_dialog_title">显示设置</string>
+    <string name="settings_close">关闭</string>
+    <string name="settings_color_label">顶部字体颜色</string>
+    <string name="settings_interval_label">刷新间隔（秒）</string>
+    <string name="settings_interval_option">%1$d 秒</string>
+    <string name="settings_offset_label">水平偏移：%1$d%%</string>
+
+    <string name="market_shanghai">沪市</string>
+    <string name="market_shenzhen">深市</string>
+    <string name="market_beijing">北交所</string>
 </resources>
