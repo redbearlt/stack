@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFCFAF8">
+
+    <!-- 顶部：极简品牌行 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="14dp"
+        android:background="@android:color/white"
+        android:elevation="0.5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="大红袍"
+            android:textColor="#FFC41E1E"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/settingsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:paddingHorizontal="6dp"
+            android:text="设置"
+            android:textSize="12sp"
+            android:textColor="#FFAAAAAA"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <TextView
+            android:id="@+id/manageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:paddingHorizontal="6dp"
+            android:text="管理"
+            android:textSize="12sp"
+            android:textColor="#FFAAAAAA"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <TextView
+            android:id="@+id/toggleButton"
+            android:layout_width="52dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="启动"
+            android:textColor="#FFC41E1E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/btn_toggle_bg" />
+
+    </LinearLayout>
+
+    <!-- 朱砂红的极细线——唯一横向色彩 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#20C41E1E" />
+
+    <!-- 行情区 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/stockList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <!-- 底部：极简状态条 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:elevation="0.5dp">
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击启动"
+            android:textSize="11sp"
+            android:textColor="#FFBBBBBB" />
+
+    </LinearLayout>
+
+</LinearLayout>

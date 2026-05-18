@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 极简白瓷：主色调 -->
+    <color name="primary">#FFC41E1E</color>
+    <color name="primary_dark">#FF991818</color>
+    <color name="gold_accent">#FFD4A853</color>
+
+    <!-- 白底体系 -->
+    <color name="bg_white">#FFFFFFFF</color>
+    <color name="bg_warm">#FFFAFAFA</color>
+    <color name="bg_card">#FFF7F7F7</color>
+    <color name="bg_divider">#FFE8E8E8</color>
+
+    <!-- 文字 -->
+    <color name="text_primary">#FF1A1A1A</color>
+    <color name="text_secondary">#FF888888</color>
+    <color name="text_dim">#FFCCCCCC</color>
+
+    <!-- 涨跌 -->
+    <color name="stock_up">#FFD32F2F</color>
+    <color name="stock_down">#FF2E7D32</color>
+    <color name="stock_unchanged">#FF888888</color>
+
+    <!-- 兼容旧名 -->
+    <color name="toolbar_bg">@color/bg_white</color>
+    <color name="icon_bg">@color/primary</color>
+    <color name="button_bg_semi">#10C41E1E</color>
+    <color name="manage_text">@color/primary_dark</color>
+    <color name="page_bg">@color/bg_warm</color>
+    <color name="status_text">@color/text_secondary</color>
+
+    <!-- AAPT2 兼容修复 -->
+    <color name="androidx_core_ripple_material_light">#1F000000</color>
+    <color name="androidx_core_secondary_text_default_material_light">#8A000000</color>
+    <color name="bright_foreground_material_light">#FF000000</color>
+    <color name="bright_foreground_material_dark">#FFFFFFFF</color>
+</resources>

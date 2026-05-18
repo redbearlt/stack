@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">大红袍</string>
+    <string name="running_status">监控运行中</string>
+    <string name="stopped_status">已停止</string>
+</resources>

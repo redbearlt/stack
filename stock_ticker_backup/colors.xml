@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="stock_up">#D32F2F</color>
+    <color name="stock_down">#2E7D32</color>
+    <color name="stock_unchanged">#333333</color>
+    <color name="toolbar_bg">#C62828</color>
+    <color name="icon_bg">#C62828</color>
+    <color name="button_bg_semi">#5580FFFFFF</color>
+    <color name="manage_text">#CCFFFFFF</color>
+    <color name="page_bg">#F5F5F5</color>
+    <color name="status_text">#999999</color>
+
+    <!-- 覆盖 appcompat 中的颜色引用，解决 AAPT2 编译 bug -->
+    <color name="bright_foreground_material_light">#FF000000</color>
+    <color name="bright_foreground_material_dark">#FFFFFFFF</color>
+</resources>
