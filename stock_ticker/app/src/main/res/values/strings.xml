@@ -10,6 +10,22 @@
     <string name="running_status">监控运行中</string>
     <string name="stopped_status">已停止</string>
 
+    <string name="summary_label">顶部盯盘摘要</string>
+    <string name="summary_waiting">等待实时行情</string>
+    <string name="summary_meta_idle">启动后会在这里显示领头股票的价格与涨跌变化。</string>
+    <string name="summary_meta_running">最后刷新：%1$s</string>
+    <string name="summary_meta_error">连续多次刷新失败，请检查网络或接口状态。</string>
+    <string name="summary_line">%1$s  %2$s</string>
+    <string name="card_status_label">运行状态</string>
+    <string name="card_watch_count_label">监控数量</string>
+    <string name="card_interval_label">刷新频率</string>
+    <string name="watchlist_title">监控列表</string>
+    <string name="watchlist_hint">名称、代码、价格、涨跌</string>
+    <string name="watchlist_refreshing">%1$d 只股票正在刷新</string>
+    <string name="empty_watchlist">暂无行情数据</string>
+    <string name="stock_meta_format">%1$s · %2$s</string>
+    <string name="signed_change_format">%1$s%2$s / %3$s%%</string>
+
     <string name="overlay_permission_message">请开启悬浮窗权限，以便在顶部状态区域显示价格。</string>
     <string name="notification_channel_name">股票行情</string>
     <string name="notification_channel_description">实时股票行情数据</string>
@@ -36,6 +52,7 @@
     <string name="settings_color_label">顶部字体颜色</string>
     <string name="settings_interval_label">刷新间隔（秒）</string>
     <string name="settings_interval_option">%1$d 秒</string>
+    <string name="settings_interval_default">3 秒</string>
     <string name="settings_offset_label">水平偏移：%1$d%%</string>
 
     <string name="market_shanghai">沪市</string>

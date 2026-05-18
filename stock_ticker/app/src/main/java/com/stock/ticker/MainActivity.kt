@@ -30,6 +30,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 
 class MainActivity : Activity() {
@@ -53,6 +56,8 @@ class MainActivity : Activity() {
 
         binding.manageBtn.setOnClickListener { showManageDialog() }
         binding.settingsBtn.setOnClickListener { showSettingsDialog() }
+
+        refreshDashboard(StockTickerService.currentPrices)
 
         if (!StockTickerService.isRunning) {
             requestPermissionAndStart()
@@ -131,13 +136,16 @@ class MainActivity : Activity() {
         }
         updateUiState(false)
         clearStockList()
+        refreshDashboard(null)
     }
 
     private fun startUiUpdates() {
         uiUpdateJob?.cancel()
         uiUpdateJob = scope.launch {
             while (isActive) {
-                StockTickerService.currentPrices?.let { renderStockList(it) }
+                val prices = StockTickerService.currentPrices
+                renderStockList(prices ?: emptyList())
+                refreshDashboard(prices)
                 binding.statusText.text = if (StockTickerService.isRunning) {
                     getString(R.string.running_status)
                 } else {
@@ -155,10 +163,55 @@ class MainActivity : Activity() {
         binding.statusText.text = getString(
             if (running) R.string.running_status else R.string.status_tap_to_start
         )
+        binding.statStatus.text = getString(
+            if (running) R.string.running_status else R.string.stopped_status
+        )
+        binding.statInterval.text = getString(
+            R.string.settings_interval_option,
+            StockSettings.getInterval(this)
+        )
+        binding.watchlistHint.text = getString(R.string.watchlist_hint)
+    }
+
+    private fun refreshDashboard(prices: List<StockPrice>?) {
+        val watchCount = StockConfig.getStocks(this).size
+        binding.statCount.text = watchCount.toString()
+        binding.statInterval.text = getString(
+            R.string.settings_interval_option,
+            StockSettings.getInterval(this)
+        )
+
+        val lead = prices?.firstOrNull()
+        if (lead == null) {
+            binding.summaryValue.text = getString(R.string.summary_waiting)
+            binding.summaryMeta.text = if (StockTickerService.isRunning) {
+                getString(R.string.running_status)
+            } else {
+                getString(R.string.summary_meta_idle)
+            }
+            return
+        }
+
+        binding.summaryValue.text = getString(
+            R.string.summary_line,
+            lead.name,
+            "%.2f".format(lead.price)
+        )
+        binding.summaryMeta.text = getString(
+            R.string.summary_meta_running,
+            SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        ) + "  " + formatSignedChange(lead.change, lead.changePercent)
+        binding.watchlistHint.text = getString(R.string.watchlist_refreshing, watchCount)
     }
 
     private fun renderStockList(prices: List<StockPrice>) {
-        if (binding.stockList.childCount == prices.size) {
+        if (prices.isEmpty()) {
+            binding.stockList.removeAllViews()
+            binding.stockList.addView(createEmptyState())
+            return
+        }
+
+        if (binding.stockList.childCount == prices.size && binding.stockList.getChildAt(0)?.tag == "stock") {
             prices.forEachIndexed { index, price ->
                 val row = binding.stockList.getChildAt(index) ?: return@forEachIndexed
                 updateRow(row, price)
@@ -170,12 +223,23 @@ class MainActivity : Activity() {
         prices.forEach { binding.stockList.addView(createStockRow(it)) }
     }
 
+    private fun createEmptyState(): View {
+        return TextView(this).apply {
+            text = getString(R.string.empty_watchlist)
+            textSize = 13f
+            setTextColor(0xFF9A8F82.toInt())
+            gravity = Gravity.CENTER
+            setPadding(0, 20, 0, 20)
+        }
+    }
+
     private fun createStockRow(price: StockPrice): View {
         val density = resources.displayMetrics.density
 
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
+            tag = "stock"
             setBackgroundColor(0xFFFFFFFF.toInt())
             elevation = 1.5f * density
             clipToPadding = false
@@ -211,15 +275,29 @@ class MainActivity : Activity() {
             )
         }
 
-        val nameTv = TextView(this).apply {
+        val nameLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1f
             )
+        }
+
+        val nameTv = TextView(this).apply {
             text = price.name
             textSize = 15f
             setTextColor(0xFF222222.toInt())
+        }
+
+        val codeTv = TextView(this).apply {
+            text = getString(
+                R.string.stock_meta_format,
+                StockConfig.getPureCode(price.code),
+                StockConfig.getMarketDisplay(price.code)
+            )
+            textSize = 11f
+            setTextColor(0xFF9A8F82.toInt())
         }
 
         val priceLayout = LinearLayout(this).apply {
@@ -242,9 +320,11 @@ class MainActivity : Activity() {
         }
 
         applyPriceColor(priceTv, changeTv, price)
+        nameLayout.addView(nameTv)
+        nameLayout.addView(codeTv)
         priceLayout.addView(priceTv)
         priceLayout.addView(changeTv)
-        row.addView(nameTv)
+        row.addView(nameLayout)
         row.addView(priceLayout)
         card.addView(accent)
         card.addView(row)
@@ -255,10 +335,19 @@ class MainActivity : Activity() {
     private fun updateRow(view: View, price: StockPrice) {
         val card = view as? LinearLayout ?: return
         val row = card.getChildAt(1) as? LinearLayout ?: return
+        val nameLayout = row.getChildAt(0) as? LinearLayout ?: return
         val priceLayout = row.getChildAt(1) as? LinearLayout ?: return
+        val nameTv = nameLayout.getChildAt(0) as? TextView ?: return
+        val codeTv = nameLayout.getChildAt(1) as? TextView ?: return
         val priceTv = priceLayout.getChildAt(0) as? TextView ?: return
         val changeTv = priceLayout.getChildAt(1) as? TextView ?: return
 
+        nameTv.text = price.name
+        codeTv.text = getString(
+            R.string.stock_meta_format,
+            StockConfig.getPureCode(price.code),
+            StockConfig.getMarketDisplay(price.code)
+        )
         priceTv.text = "%.2f".format(price.price)
         applyPriceColor(priceTv, changeTv, price)
     }
@@ -269,14 +358,23 @@ class MainActivity : Activity() {
             price.changePercent < -0.01 -> ContextCompat.getColor(this, R.color.stock_down)
             else -> ContextCompat.getColor(this, R.color.stock_unchanged)
         }
-        val arrow = when {
-            price.changePercent > 0.01 -> "↑"
-            price.changePercent < -0.01 -> "↓"
-            else -> "—"
-        }
         priceTv.setTextColor(color)
-        changeTv.text = "$arrow${"%.2f".format(abs(price.changePercent))}%"
+        changeTv.text = formatSignedChange(price.change, price.changePercent)
         changeTv.setTextColor(color)
+    }
+
+    private fun formatSignedChange(change: Double, changePercent: Double): String {
+        val prefix = when {
+            changePercent > 0.01 -> "+"
+            changePercent < -0.01 -> "-"
+            else -> "="
+        }
+        return getString(
+            R.string.signed_change_format,
+            prefix,
+            "%.2f".format(abs(change)),
+            "%.2f".format(abs(changePercent))
+        )
     }
 
     private fun clearStockList() {
@@ -399,6 +497,7 @@ class MainActivity : Activity() {
                     }
                 }
                 Toast.makeText(this, getString(R.string.stock_list_updated), Toast.LENGTH_SHORT).show()
+                refreshDashboard(StockTickerService.currentPrices)
             }
             .setNeutralButton(R.string.action_reset_default) { _, _ ->
                 StockConfig.resetToDefault(this)
@@ -409,6 +508,7 @@ class MainActivity : Activity() {
                     }
                 }
                 Toast.makeText(this, getString(R.string.stock_list_reset), Toast.LENGTH_SHORT).show()
+                refreshDashboard(StockTickerService.currentPrices)
             }
             .setNegativeButton(R.string.action_cancel, null)
             .show()
@@ -530,6 +630,7 @@ class MainActivity : Activity() {
                 setOnClickListener {
                     StockSettings.setInterval(this@MainActivity, seconds)
                     notifyServiceReload()
+                    refreshDashboard(StockTickerService.currentPrices)
                     showSettingsDialog()
                 }
             }

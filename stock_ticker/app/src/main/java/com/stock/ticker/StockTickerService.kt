@@ -27,7 +27,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-
 class StockTickerService : Service() {
 
     private val stockCodes: List<String>
@@ -159,9 +158,7 @@ class StockTickerService : Service() {
     }
 
     private fun updateOverlay(text: String) {
-        overlayView?.post {
-            overlayView?.text = text
-        }
+        overlayView?.post { overlayView?.text = text }
     }
 
     private fun removeOverlay() {
@@ -212,7 +209,7 @@ class StockTickerService : Service() {
                 val yesterdayClose = fields[2].toDoubleOrNull() ?: 0.0
                 val change = current - yesterdayClose
                 val changePercent = if (yesterdayClose > 0) change / yesterdayClose * 100 else 0.0
-                prices.add(StockPrice(name, current, change, changePercent))
+                prices.add(StockPrice(code, name, current, change, changePercent))
             }
         }
         return prices
@@ -276,6 +273,7 @@ class StockTickerService : Service() {
 }
 
 data class StockPrice(
+    val code: String,
     val name: String,
     val price: Double,
     val change: Double,
