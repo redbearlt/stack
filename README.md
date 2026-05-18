@@ -1,19 +1,10 @@
 # stack
 
-This repository contains the Android stock ticker project extracted from a mixed local workspace.
+Android stock ticker project for showing real-time stock prices near the top status area on Android phones.
 
 ## Included
 
 - `stock_ticker/`: main Android project
-- `stock_ticker_backup/`: earlier backup snapshot
-- `app-debug.apk`: existing built APK, if present
-- `icon-source.png`: source icon image
-- `build.png`: build-related screenshot
-- `error.png`: error screenshot
-
-## Purpose
-
-The app is intended to show real-time stock prices at the top of an Android phone screen/status area.
 
 ## Notes
 
